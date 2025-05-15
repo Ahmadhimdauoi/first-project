@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>متجر المنتجات</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+        }
+        .dark body {
+            background-color: #1f2937;
+            color: #e5e7eb;
+        }
+        .dark nav {
+            background-color: #111827;
+        }
+        .dark .bg-white {
+            background-color: #374151;
+            color: #e5e7eb;
+        }
+        .dark .text-gray-600 {
+            color: #d1d5db;
+        }
+        .dark .bg-gray-100 {
+            background-color: #1f2937;
+        }
+        .dark .bg-blue-600 {
+            background-color: #2563eb;
+        }
+        .dark .bg-blue-700 {
+            background-color: #1d4ed8;
+            color: #e5e7eb;
+        }
+        .product-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .product-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+        }
+        .product-card img {
+            transition: transform 0.3s ease;
+        }
+        .product-card:hover img {
+            transform: scale(1.1);
+        }
+        #loginModal .modal-content {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 0.75rem;
+        }
+        #loginModal label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        #loginModal select,
+        #loginModal input {
+            border-width: 2px;
+            border-color: #d1d5db;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            transition: border-color 0.3s ease;
+        }
+        #loginModal select:focus,
+        #loginModal input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        #loginModal button[type="submit"] {
+            padding: 0.75rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+        .dark #loginModal .modal-content {
+            background-color: #374151;
+            color: #e5e7eb;
+        }
+        .dark #loginModal select,
+        .dark #loginModal input {
+            background-color: #4b5563;
+            border-color: #6b7280;
+            color: #e5e7eb;
+        }
+        .dark #loginModal select:focus,
+        .dark #loginModal input:focus {
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 transition-colors duration-300">
+    <div id="loginModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+        <div class="modal-content bg-white dark:bg-gray-700 p-6 w-full max-w-md">
+            <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">تسجيل الدخول</h2>
+            <form id="loginForm">
+                <div class="mb-6">
+                    <label for="userType" class="block text-gray-700 dark:text-gray-300">نوع المستخدم</label>
+                    <select id="userType" name="userType" class="w-full border rounded p-2" required>
+                        <option value="user">مستخدم عادي</option>
+                        <option value="admin">أدمن</option>
+                    </select>
+                </div>
+                <div id="adminCredentials" class="hidden">
+                    <div class="mb-6">
+                        <label for="username" class="block text-gray-700 dark:text-gray-300">اسم المستخدم</label>
+                        <input type="text" id="username" name="username" class="w-full border rounded p-2">
+                    </div>
+                    <div class="mb-6">
+                        <label for="password" class="block text-gray-700 dark:text-gray-300">كلمة المرور</label>
+                        <input type="password" id="password" name="password" class="w-full border rounded p-2">
+                    </div>
+                </div>
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full">تسجيل الدخول</button>
+            </form>
+        </div>
+    </div>
+
+    <nav class="bg-blue-600 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-white text-2xl font-bold">متجر المنتجات</h1>
+            <div class="flex items-center space-x-4">
+                <button id="openAddModal" class="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800 hidden">إضافة منتج</button>
+                <button id="toggleDarkMode" class="bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-white px-3 py-1 rounded hover:bg-gray-400 dark:hover:bg-gray-500">تبديل الوضع</button>
+            </div>
+        </div>
+    </nav>
+
+    <div id="message" class="hidden container mx-auto mt-4 p-4 rounded"></div>
+
+    <div class="container mx-auto mt-6">
+        <div id="productsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </div>
+
+    <div id="productModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-lg w-full max-w-md">
+            <h2 id="modalTitle" class="text-xl font-bold mb-4">إضافة منتج جديد</h2>
+            <form id="productForm">
+                <div class="mb-4">
+                    <label for="title" class="block text-gray-700 dark:text-gray-300">عنوان المنتج</label>
+                    <input type="text" id="title" name="title" class="w-full border rounded p-2" required>
+                </div>
+                <div class="mb-4">
+                    <label for="description" class="block text-gray-700 dark:text-gray-300">الوصف</label>
+                    <textarea id="description" name="description" class="w-full border rounded p-2" required></textarea>
+                </div>
+                <div class="mb-4">
+                    <label for="image" class="block text-gray-700 dark:text-gray-300">صورة المنتج</label>
+                    <input type="file" id="image" name="image" accept="image/*" class="w-full border rounded p-2" required>
+                </div>
+                <div class="mb-4">
+                    <label for="is_free" class="block text-gray-700 dark:text-gray-300">مجاني؟</label>
+                    <select id="is_free" name="is_free" class="w-full border rounded p-2" required>
+                        <option value="true">نعم</option>
+                        <option value="false">لا</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="link" class="block text-gray-700 dark:text-gray-300">رابط الشراء/العرض</label>
+                    <input type="url" id="link" name="link" class="w-full border rounded p-2" required>
+                </div>
+                <input type="hidden" id="productId">
+                <div class="flex justify-end">
+                    <button type="button" id="closeModal" class="bg-gray-500 text-white px-4 py-2 rounded mr-2 hover:bg-gray-600">إلغاء</button>
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">حفظ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
